@@ -5,7 +5,7 @@ import viteLogo from '/vite.svg'
 function App() {
   const [count, setCount] = useState(0)
 
-  return "hello world"
+  return <p className='text-red-500'>hello</p>
 }
 
 export default App
