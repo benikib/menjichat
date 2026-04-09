@@ -15,26 +15,14 @@ import useStates from "../hooks/useStats";
 
 function Home() {
   const { user, role } = useAuthStore();
-  const {biens,fetchBiens}=useBien();
-  const {contrats,fetchContrats}=useContrat();
+  
+  
   const navigate=useNavigate()
   const {stats,actualiseState}=useStates()
 
   const [loadingContrat,setLoadingContrat]=useState(true)
  
-  useEffect(()=>{
-    fetchBiens()
-    fetchContrats(setLoadingContrat)
-   
-  },[])
-
-  useEffect(() => {
-  actualiseState("Biens",biens)
-}, [biens]);
-
- useEffect(() => {
-  actualiseState("Contrats actifs",contrats)
-}, [contrats]);
+ 
 
   
 
@@ -105,7 +93,7 @@ function Home() {
             
             <div className="flex items-center gap-3">
               <span className="px-4 py-2 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 font-medium text-sm shadow-sm">
-                {role || "Utilisateur"}
+                {role && role.length > 0 ? role.join(", ") : "Utilisateur"}
               </span>
               <span className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium text-sm shadow-lg shadow-green-500/30">
                 ● Connecté

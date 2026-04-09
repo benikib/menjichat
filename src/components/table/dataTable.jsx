@@ -34,7 +34,7 @@ function DataTable({ columns, data, actions }) {
                       className={`text-xs px-2 py-1 rounded-full ${col.evidence ? "text-white bg-blue-600" : "text-black"
                         }`}
                     >
-                      {capitalize(row[col.key] ?? "")}
+                      {col.selector ? col.selector(row) : capitalize(row[col.key] ?? "")}
                     </span>
                   </td>
                 ) : (

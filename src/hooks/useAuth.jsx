@@ -31,8 +31,8 @@ function useAuth() {
             const data = await postRequest("login", { email, password });
             storeLogin(data);
             
-            if(data.role=="Admin" || data.role=="SuperAdmin"  ){
-                 navigate("/agence");
+            if(data.role && (data.role.includes("Admin") || data.role.includes("SuperAdmin"))  ){
+                 navigate("/dashboard");
             }else{
                 navigate("/dashboard");
             }

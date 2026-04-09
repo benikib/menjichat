@@ -12,7 +12,9 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.2.2",
+    "antd": "^6.3.5",
     "axios": "^1.13.6",
+    "dayjs": "^1.11.20",
     "lucide-react": "^1.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

@@ -6,7 +6,9 @@ function TableRow({ rowData, columns, actions }) {
     <tr className="border-t hover:bg-gray-50">
       {columns.map((col) => (
         <td key={col.key} className="px-4 py-2">
-          {col.key === "statut" ? (
+          {col.render ? (
+            col.render(rowData[col.key], rowData)
+          ) : col.key === "statut" ? (
             <span
               className={`px-2 py-1 text-xs rounded ${
                 rowData[col.key] === "Actif"
@@ -26,13 +28,13 @@ function TableRow({ rowData, columns, actions }) {
         <td className="px-4 py-2 flex gap-2">
           {actions.map((action) => (
             <button
-              key={action.label}
-              onClick={() => action.callback(rowData)}
+              key={action.label || action.title}
+              onClick={() => (action.onClick || action.callback)(rowData)}
               className={`px-3 py-1 text-white rounded ${
                 action.color || "bg-blue-600"
               }`}
             >
-              {action.label}
+              {action.icon || action.label}
             </button>
           ))}
         </td>

@@ -6,7 +6,7 @@ const useAuthStore = create(
   persist(
     (set) => ({
       user: null,
-      role: null,
+      role: [], // Changed from null to empty array
       token: null,
       loading: false,
       error: null,
@@ -19,7 +19,7 @@ const useAuthStore = create(
           set({ 
             user: data.user, 
             token: data.token, 
-            role: data.role,
+            role: Array.isArray(data.role) ? data.role : [data.role], // Handle both array and string
             loading: false 
           });
           
@@ -29,7 +29,7 @@ const useAuthStore = create(
             localStorage.setItem("user", JSON.stringify(data.user));
           }
           if (data.role) {
-            localStorage.setItem("role", data.role);
+            localStorage.setItem("role", JSON.stringify(Array.isArray(data.role) ? data.role : [data.role]));
           }
           
         } catch (err) {
@@ -37,7 +37,7 @@ const useAuthStore = create(
             error: err.message, 
             user: null, 
             token: null,
-            role: null,
+            role: [], // Changed from null to empty array
             loading: false 
           });
         }
@@ -54,7 +54,7 @@ const useAuthStore = create(
         set({ 
           user: null, 
           token: null,
-          role: null,
+          role: [], // Changed from null to empty array
           error: null 
         });
       },
@@ -63,20 +63,22 @@ const useAuthStore = create(
       loadUserFromStorage: () => {
         const token = localStorage.getItem("token");
         const userStr = localStorage.getItem("user");
-        const role = localStorage.getItem("role");
+        const roleStr = localStorage.getItem("role");
         
         if (token) {
           let user = null;
+          let role = [];
           try {
             user = userStr ? JSON.parse(userStr) : null;
+            role = roleStr ? JSON.parse(roleStr) : [];
           } catch (e) {
-            console.error("Erreur de parsing user:", e);
+            console.error("Erreur de parsing user ou role:", e);
           }
           
           set({ 
             token, 
             user,
-            role: role || null
+            role: Array.isArray(role) ? role : []
           });
         }
       },

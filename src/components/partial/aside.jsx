@@ -75,7 +75,7 @@ function Aside() {
         <ul className="flex flex-col gap-2">
 
           {/* Dashboard */}
-          {(role === "Gestionnaire" || role === "Bailleur") && (
+          {(role.includes("Gestionnaire") || role.includes("Bailleur")) && (
             <li>
               <NavLink
                 to="/dashboard"
@@ -93,25 +93,57 @@ function Aside() {
           )}
 
           {/* Agence */}
-          {(role === "Admin" || role === "SuperAdmin") && (
+          {(role.includes("Admin") || role.includes("SuperAdmin")) && (
             <li>
               <NavLink
-                to="/agence"
-                onClick={() => handleSelect("Agence")}
-                className={linkClass("Agence")}
+                to="/Projet"
+                onClick={() => handleSelect("Projet")}
+                className={linkClass("Projet")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center"> 
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 012-2h6M9 19h6m-6 0l-3.5 3.5M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Agence
+                  Projet
                 </div>
               </NavLink>
             </li>
           )}
 
+             {(role.includes("Admin") || role.includes("SuperAdmin")) && (
+            <li>
+              <NavLink
+                to="/Taches"
+                onClick={() => handleSelect("Taches")}
+                className={linkClass("Taches")}
+              >
+                <div className="flex items-center">
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                 Mes  Taches
+                </div>
+              </NavLink>
+            </li>
+          )}
+   {(role.includes("Admin") || role.includes("SuperAdmin")) && (
+            <li>
+              <NavLink
+                to="/Documents"
+                onClick={() => handleSelect("Documents")}
+                className={linkClass("Documents")}
+              >
+                <div className="flex items-center">
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Documents
+                </div>
+              </NavLink>
+            </li>
+          )}
           {/* Gestion des bailleurs */}
-          {(role === "Admin" || role === "SuperAdmin") && (
+          {(role.includes("Admin") || role.includes("SuperAdmin")) && (
             <li>
               <NavLink
                 to="/gestionUsers"
@@ -122,14 +154,14 @@ function Aside() {
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  Gestion des bailleurs
+                   Utilisateurs
                 </div>
               </NavLink>
             </li>
           )}
 
           {/* Mes biens */}
-          {(role === "Gestionnaire" || role === "Bailleur") && (
+          {(role.includes("Gestionnaire") || role.includes("Bailleur")) && (
             <li>
               <NavLink
                 to="/biens"
@@ -147,7 +179,7 @@ function Aside() {
           )}
 
           {/* Mes locations */}
-          {(role === "Gestionnaire" || role === "Bailleur") && (
+          {(role.includes("Gestionnaire") || role.includes("Bailleur")) && (
             <li>
               <NavLink
                 to="/locations"
@@ -165,7 +197,7 @@ function Aside() {
           )}
 
           {/* Mes contrats */}
-          {(role === "Gestionnaire" || role === "Bailleur") && (
+          {(role.includes("Gestionnaire") || role.includes("Bailleur")) && (
             <li>
               <NavLink
                 to="/contrats"
@@ -183,7 +215,7 @@ function Aside() {
           )}
       
           {/* Paiements */}
-          {(role === "Gestionnaire" || role === "Bailleur") && (
+          {(role.includes("Gestionnaire") || role.includes("Bailleur")) && (
             <li>
               <NavLink
                 to="/paiements"
@@ -201,7 +233,7 @@ function Aside() {
           )}
 
           {/* Mes gestionnaires (pour Bailleur) */}
-          {(role === "Bailleur") && (
+          {(role.includes("Bailleur")) && (
             <li>
               <NavLink
                 to="/bailleurs/gestionnaires"
