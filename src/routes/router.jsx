@@ -5,8 +5,10 @@ import ProtectedRoute from "../components/ProtectedRoute.jsx";
 import MainLayout from "../components/MainLayout.jsx";
 import RoleProtectedRoute from "../components/RoleProtectedRoute.jsx";
 import Unauthorized from "../pages/Unauthorized.jsx";
-import GestionProjets from "../pages/projets/GestionProjets.jsx";
+
+import ListUsersRoles from "../pages/users/ListusersRoles.jsx";
 import GestionTachesProjets from "../pages/Projets/GestionTachesProjets.jsx";
+import GestionProjets from "../pages/Projets/GestionProjets.jsx";
 
 
 
@@ -26,6 +28,10 @@ const router = createBrowserRouter([
             {
                 path: "taches/:projetId",
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Utilisateur']}><GestionTachesProjets /></RoleProtectedRoute>
+            },
+            {
+                path: "gestionUsers",
+                element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><ListUsersRoles /></RoleProtectedRoute>
             }
 
           

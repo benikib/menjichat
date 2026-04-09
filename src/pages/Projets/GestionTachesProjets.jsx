@@ -14,6 +14,8 @@ const GestionTachesProjets = () => {
   const [form] = Form.useForm();
   const [editingId, setEditingId] = useState(null);
 
+  const editingTask = taches.find(t => t.id === editingId);
+
   // Créer un nouveau form quand on ouvre le modal
   useEffect(() => {
     if (isModalVisible && !editingId) {
@@ -53,7 +55,7 @@ const GestionTachesProjets = () => {
 
   const getStatutColor = (statut) => {
     const colors = {
-      'prevu': 'default',
+      'prevu': 'warning',
       'en cours': 'processing',
       'termine': 'success',
       'bloque': 'error'
@@ -81,28 +83,6 @@ const GestionTachesProjets = () => {
       left: Math.max(0, (joursDebut / joursTotal) * 100),
       width: Math.max(1, (joursDuration / joursTotal) * 100)
     };
-  };
-
-  const handleAddOrEdit = async () => {
-    try {
-      const values = await form.validateFields();
-      
-      if (editingId) {
-        // Modifier la tâche existante
-        await api.put(`/taches/${editingId}`, values);
-        setEditingId(null);
-      } else {
-        // Ajouter une nouvelle tâche
-        await api.post('/taches', values);
-      }
-      
-      form.resetFields();
-      setIsModalVisible(false);
-      setEditingId(null);
-      fetchTaches(); // Recharger les données
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
-    }
   };
 
   const handleEdit = (tache) => {
@@ -137,6 +117,48 @@ const GestionTachesProjets = () => {
     setIsModalVisible(false);
     setEditingId(null);
     form.resetFields();
+  };
+
+  const handleSubmitApi = async (payload) => {
+    try {
+      if (editingId) {
+        // Modifier la tâche existante
+        await api.put(`/taches/${editingId}`, payload);
+      } else {
+        // Ajouter une nouvelle tâche
+        await api.post('/taches', payload);
+      }
+      console.log('Tâche sauvegardée avec succès'); 
+      setIsModalVisible(false);
+      setEditingId(null);
+      fetchTaches(); // Recharger les données
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
+  };
+
+  // 🔥 calcul automatique durée
+  const handleDatesChange = () => {
+    const debut = form.getFieldValue("date_debut");
+    const fin = form.getFieldValue("date_fin");
+
+    if (debut && fin) {
+      const duree = fin.diff(debut, "day");
+      if (duree >= 0) {
+        form.setFieldsValue({ duree });
+      }
+    }
+  };
+
+  // 🚀 SUBMIT FINAL
+  const onFinish = (values) => {
+    const payload = {
+      ...values,
+      date_debut: values.date_debut.format("YYYY-MM-DD"),
+      date_fin: values.date_fin.format("YYYY-MM-DD"),
+    };
+
+    handleSubmitApi(payload);
   };
 
   const columns = [
@@ -204,7 +226,7 @@ const GestionTachesProjets = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '20px' }}>
       <Row gutter={16} style={{ marginBottom: '24px' }}>
         <Col span={24}>
           <Card title="Gestion des Tâches du Projet" extra={
@@ -275,6 +297,7 @@ const GestionTachesProjets = () => {
                             backgroundColor: tache.statut === 'termine' ? '#52c41a' :
                                             tache.statut === 'en cours' ? '#1890ff' :
                                             tache.statut === 'bloque' ? '#f5222d' :
+                                            tache.statut === 'prevu' ? '#faad14' :
                                             '#d9d9d9',
                             borderRadius: '4px',
                             display: 'flex',
@@ -303,91 +326,117 @@ const GestionTachesProjets = () => {
 
       {/* Modal for Adding/Editing Task */}
       <Modal
-        title={editingId ? "Modifier la tâche" : "Nouvelle tâche"}
-        visible={isModalVisible}
-        onOk={handleAddOrEdit}
-        onCancel={handleCancel}
-        width={600}
+      title={editingTask ? "Modifier la tâche" : "Nouvelle tâche"}
+      open={isModalVisible}
+      onCancel={handleCancel}
+      onOk={() => form.submit()} // 🔥 clé
+      width={600}
+    >
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
       >
-        <Form
-          form={form}
-          layout="vertical"
+
+        <Form.Item
+          label="Nom de la tâche"
+          name="nom"
+          rules={[{ required: true, message: "Nom obligatoire" }]}
         >
-          <Form.Item
-            label="Nom de la tâche"
-            name="nom"
-            rules={[{ required: true, message: 'Veuillez entrer le nom de la tâche' }]}
-          >
-            <Input placeholder="Entrez le nom de la tâche" />
-          </Form.Item>
+          <Input placeholder="Nom de la tâche" />
+        </Form.Item>
 
-          <Form.Item
-            label="Description"
-            name="description"
-            rules={[{ required: true, message: 'Veuillez entrer une description' }]}
-          >
-            <Input.TextArea placeholder="Description de la tâche" rows={3} />
-          </Form.Item>
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[{ required: true, message: "Description obligatoire" }]}
+        >
+          <Input.TextArea rows={3} />
+        </Form.Item>
 
-          <Form.Item
-            label="Statut"
-            name="statut"
-            rules={[{ required: true }]}
-          >
-            <Select>
-              <Select.Option value="prevu">Prévu</Select.Option>
-              <Select.Option value="en cours">En cours</Select.Option>
-              <Select.Option value="termine">Terminé</Select.Option>
-              <Select.Option value="bloque">Bloqué</Select.Option>
-            </Select>
-          </Form.Item>
+        <Form.Item
+          label="Statut"
+          name="statut"
+          rules={[{ required: true }]}
+        >
+          <Select>
+            <Select.Option value="prevu">Prévu</Select.Option>
+            <Select.Option value="en cours">En cours</Select.Option>
+            <Select.Option value="termine">Terminé</Select.Option>
+            <Select.Option value="bloque">Bloqué</Select.Option>
+          </Select>
+        </Form.Item>
 
-          <Form.Item
-            label="Priorité"
-            name="priorite"
-            rules={[{ required: true }]}
-          >
-            <Select>
-              <Select.Option value="haute">Haute</Select.Option>
-              <Select.Option value="moyenne">Moyenne</Select.Option>
-              <Select.Option value="basse">Basse</Select.Option>
-            </Select>
-          </Form.Item>
+        <Form.Item
+          label="Priorité"
+          name="priorite"
+          rules={[{ required: true }]}
+        >
+          <Select>
+            <Select.Option value="eleve">Élevée</Select.Option>
+            <Select.Option value="moyenne">Moyenne</Select.Option>
+            <Select.Option value="faible">Faible</Select.Option>
+          </Select>
+        </Form.Item>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Date de début"
-                name="date_debut"
-                rules={[{ required: true, message: 'Veuillez sélectionner une date de début' }]}
-              >
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Date de fin"
-                name="date_fin"
-                rules={[{ required: true, message: 'Veuillez sélectionner une date de fin' }]}
-              >
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
+        {/* 📅 DATES */}
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Date début"
+              name="date_debut"
+              rules={[{ required: true, message: "Date début obligatoire" }]}
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                onChange={handleDatesChange}
+              />
+            </Form.Item>
+          </Col>
 
-          <Form.Item
-            label="Durée (jours)"
-            name="duree"
-            rules={[{ required: true, message: 'Veuillez entrer la durée' }]}
-          >
-            <Input type="number" min={1} placeholder="Nombre de jours" />
-          </Form.Item>
+          <Col span={12}>
+            <Form.Item
+              label="Date fin"
+              name="date_fin"
+              dependencies={["date_debut"]}
+              rules={[
+                { required: true, message: "Date fin obligatoire" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const debut = getFieldValue("date_debut");
+                    if (!value || !debut || value.isAfter(debut) || value.isSame(debut)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject("Date fin doit être après début");
+                  }
+                })
+              ]}
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                onChange={handleDatesChange}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
-          <Form.Item name="projet_id" hidden>
-            <Input type="hidden" />
-          </Form.Item>
-        </Form>
-      </Modal>
+        {/* ⏱ DURÉE AUTO */}
+        <Form.Item
+          label="Durée (jours)"
+          name="duree"
+          rules={[{ required: true }]}
+        >
+          <Input disabled />
+        </Form.Item>
+
+        <Form.Item name="projet_id" hidden>
+          <Input />
+        </Form.Item>
+
+      </Form>
+
+    </Modal>
     </div>
   );
 };
