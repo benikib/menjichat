@@ -113,7 +113,7 @@ function Aside() {
              {(role.includes("Admin") || role.includes("SuperAdmin")) && (
             <li>
               <NavLink
-                to="/Taches"
+                to="/listeMyTachesSoustaches"
                 onClick={() => handleSelect("Taches")}
                 className={linkClass("Taches")}
               >

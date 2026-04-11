@@ -9,6 +9,8 @@ import Unauthorized from "../pages/Unauthorized.jsx";
 import ListUsersRoles from "../pages/users/ListusersRoles.jsx";
 import GestionTachesProjets from "../pages/Projets/GestionTachesProjets.jsx";
 import GestionProjets from "../pages/Projets/GestionProjets.jsx";
+import ListeTachesandSoustaches from "../pages/myTachesandSoustaches/ListeTachesandSoustaches.jsx";
+
 
 
 
@@ -32,7 +34,12 @@ const router = createBrowserRouter([
             {
                 path: "gestionUsers",
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><ListUsersRoles /></RoleProtectedRoute>
+            },
+            {
+                path: "listeMyTachesSoustaches",
+                element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Utilisateur']}><ListeTachesandSoustaches /></RoleProtectedRoute>
             }
+
 
           
         ],

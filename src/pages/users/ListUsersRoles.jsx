@@ -40,7 +40,7 @@ const ListUsersRoles = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/usersroles');
+      const response = await api.get('/users');
       setUsers(Array.isArray(response.data?.users) ? response.data.users : []);
     } catch (error) {
       message.error('Erreur lors du chargement des utilisateurs');

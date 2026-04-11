@@ -9,6 +9,7 @@ const GestionTachesProjets = () => {
   const { projetId } = useParams();
   const [taches, setTaches] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -47,9 +48,23 @@ const GestionTachesProjets = () => {
     }
   };
 
+  // Charger les utilisateurs
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/users');
+      const usersData = response.data.users || [];
+      console.log('Utilisateurs chargés:', usersData);
+      setUsers(Array.isArray(usersData) ? usersData : []);
+    } catch (error) {
+      console.error('Erreur lors du chargement des utilisateurs:', error);
+      setUsers([]);
+    }
+  };
+
   useEffect(() => {
     if (projetId) {
       fetchTaches();
+      fetchUsers();
     }
   }, [projetId]);
 
@@ -91,7 +106,9 @@ const GestionTachesProjets = () => {
       ...tache,
       date_debut: dayjs(tache.date_debut),
       date_fin: dayjs(tache.date_fin),
-      projet_id: projetId
+      projet_id: projetId,
+      assigned_users: tache.userstaches?.map(user => user.id) || [],
+      role_dans_tache: tache.userstaches?.[0]?.role_dans_tache || 'Contributeur'
     });
     setIsModalVisible(true);
   };
@@ -121,14 +138,39 @@ const GestionTachesProjets = () => {
 
   const handleSubmitApi = async (payload) => {
     try {
+      let tacheId = editingId;
+
       if (editingId) {
         // Modifier la tâche existante
         await api.put(`/taches/${editingId}`, payload);
       } else {
-        // Ajouter une nouvelle tâche
-        await api.post('/taches', payload);
+        // Créer une nouvelle tâche
+        const response = await api.post('/taches', payload);
+        tacheId = response.data.id; // Récupérer l'ID de la nouvelle tâche
       }
-      console.log('Tâche sauvegardée avec succès'); 
+
+      // Gérer les assignations si des utilisateurs sont sélectionnés
+      if (payload.assigned_users && payload.assigned_users.length > 0) {
+        // Supprimer les anciennes assignations si on modifie
+        if (editingId) {
+          try {
+            await api.delete(`/taches/${editingId}/assignations`);
+          } catch (error) {
+            console.warn('Erreur lors de la suppression des anciennes assignations:', error);
+          }
+        }
+
+        // Créer les nouvelles assignations
+        for (const userId of payload.assigned_users) {
+          await api.post('/usertaches', {
+            user_id: userId,
+            tache_id: tacheId,
+            role_dans_tache: payload.role_dans_tache || 'Contributeur'
+          });
+        }
+      }
+
+      console.log('Tâche et assignations sauvegardées avec succès');
       setIsModalVisible(false);
       setEditingId(null);
       fetchTaches(); // Recharger les données
@@ -153,9 +195,16 @@ const GestionTachesProjets = () => {
   // 🚀 SUBMIT FINAL
   const onFinish = (values) => {
     const payload = {
-      ...values,
+      nom: values.nom,
+      duree: values.duree,
+      description: values.description,
       date_debut: values.date_debut.format("YYYY-MM-DD"),
       date_fin: values.date_fin.format("YYYY-MM-DD"),
+      priorite: values.priorite,
+      statut: values.statut,
+      projet_id: projetId,
+      assigned_users: values.assigned_users || [],
+      role_dans_tache: values.role_dans_tache || 'Contributeur'
     };
 
     handleSubmitApi(payload);
@@ -428,6 +477,38 @@ const GestionTachesProjets = () => {
           rules={[{ required: true }]}
         >
           <Input disabled />
+        </Form.Item>
+
+        {/* 👥 ASSIGNATIONS */}
+        <Form.Item
+          label="Assigner des utilisateurs"
+          name="assigned_users"
+          rules={[{ required: true, message: "Au moins un utilisateur doit être assigné" }]}
+        >
+          <Select
+            mode="multiple"
+            placeholder="Sélectionner les utilisateurs"
+            style={{ width: '100%' }}
+          >
+            {Array.isArray(users) && users.map(user => (
+              <Select.Option key={user.id} value={user.id}>
+                {user.name || user.email}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          label="Rôle dans la tâche"
+          name="role_dans_tache"
+          rules={[{ required: true, message: "Le rôle est obligatoire" }]}
+        >
+          <Select placeholder="Sélectionner le rôle">
+            <Select.Option value="Responsable">Responsable</Select.Option>
+            <Select.Option value="Contributeur">Contributeur</Select.Option>
+            <Select.Option value="Observateur">Observateur</Select.Option>
+            <Select.Option value="Validateur">Validateur</Select.Option>
+          </Select>
         </Form.Item>
 
         <Form.Item name="projet_id" hidden>
