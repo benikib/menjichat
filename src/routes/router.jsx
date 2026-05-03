@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import Home from "../pages/Home.jsx";
+
 import Login from "../pages/auth/login.jsx";
 import ProtectedRoute from "../components/ProtectedRoute.jsx";
 import MainLayout from "../components/MainLayout.jsx";
@@ -10,6 +10,8 @@ import ListUsersRoles from "../pages/users/ListusersRoles.jsx";
 import GestionTachesProjets from "../pages/Projets/GestionTachesProjets.jsx";
 import GestionProjets from "../pages/Projets/GestionProjets.jsx";
 import ListeTachesandSoustaches from "../pages/myTachesandSoustaches/ListeTachesandSoustaches.jsx";
+import Dashboard from "../pages/Dashboard.jsx";
+import Rapport from "../pages/Rapport.jsx";
 
 
 
@@ -18,15 +20,19 @@ const router = createBrowserRouter([
     {
         element: <ProtectedRoute><MainLayout /></ProtectedRoute>,
         children: [
-            { path: "/", element: <Home /> },
+            { path: "/", element: <Dashboard /> },
             
             { path: "/dashboard", element: <RoleProtectedRoute allowedRoles={['Admin', 'SuperAdmin', 'Bailleur',
-                ]}><Home /> </RoleProtectedRoute>},
+                ]}><Dashboard /> </RoleProtectedRoute>},
             {
                 path: "/projet",
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><GestionProjets /></RoleProtectedRoute>
             }
             ,
+            {
+                path: "Rapport",
+                element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><Rapport /></RoleProtectedRoute>
+            },
             {
                 path: "taches/:projetId",
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Utilisateur']}><GestionTachesProjets /></RoleProtectedRoute>
@@ -39,6 +45,7 @@ const router = createBrowserRouter([
                 path: "listeMyTachesSoustaches",
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Utilisateur']}><ListeTachesandSoustaches /></RoleProtectedRoute>
             }
+          
 
 
           

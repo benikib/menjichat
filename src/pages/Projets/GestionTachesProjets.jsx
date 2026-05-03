@@ -4,16 +4,24 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useParams } from 'react-router-dom';
 import api from '../../services/api';
+import useAuthStore from '../../store/useAuthStore';
 
 const GestionTachesProjets = () => {
   const { projetId } = useParams();
   const [taches, setTaches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
+  const [projet, setProjet] = useState(null);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingId, setEditingId] = useState(null);
+
+  const user = useAuthStore((state) => state.user);
+
+  const isChefProjet = () => {
+    return user && projet && projet.chef_projet_id === user.id;
+  };
 
   const editingTask = taches.find(t => t.id === editingId);
 
@@ -29,7 +37,51 @@ const GestionTachesProjets = () => {
         projet_id: projetId
       });
     }
+
   }, [isModalVisible, editingId, form, projetId]);
+
+  //api pour recuperer les details du projet
+  const fetchProjet = async () => {
+    try {
+      console.log('Fetching project with ID:', projetId);
+      // First try to get the specific project
+      const response = await api.get(`/projets/${projetId}`);
+      console.log('API Response for single project:', response);
+
+      let projetData = response.data;
+      if (response.data && response.data.projet) {
+        projetData = response.data.projet;
+      } else if (response.data && response.data.data) {
+        projetData = response.data.data;
+      }
+
+      setProjet(projetData);
+      console.log('Projet data set to state:', projetData);
+    } catch (error) {
+      console.error('Erreur lors du chargement du projet spécifique:', error);
+
+      // If single project endpoint fails, try fetching all projects and finding the one we need
+      try {
+        console.log('Trying to fetch all projects instead...');
+        const allProjectsResponse = await api.get('/projets');
+        console.log('All projects response:', allProjectsResponse);
+
+        const allProjects = allProjectsResponse.data.projets || allProjectsResponse.data;
+        const foundProject = allProjects.find(p => p.id == projetId);
+
+        if (foundProject) {
+          setProjet(foundProject);
+          console.log('Found project from list:', foundProject);
+        } else {
+          console.error('Project not found in the list');
+        }
+      } catch (fallbackError) {
+        console.error('Erreur lors du chargement de tous les projets:', fallbackError);
+      }
+    }
+  };
+
+    
 
   // Charger les tâches depuis l'API
   const fetchTaches = async () => {
@@ -65,6 +117,7 @@ const GestionTachesProjets = () => {
     if (projetId) {
       fetchTaches();
       fetchUsers();
+      fetchProjet();
     }
   }, [projetId]);
 
@@ -101,6 +154,14 @@ const GestionTachesProjets = () => {
   };
 
   const handleEdit = (tache) => {
+    if (!isChefProjet()) {
+      Modal.error({
+        title: 'Accès refusé',
+        content: 'Seul le chef de projet peut modifier les tâches.',
+      });
+      return;
+    }
+
     setEditingId(tache.id);
     form.setFieldsValue({
       ...tache,
@@ -114,6 +175,14 @@ const GestionTachesProjets = () => {
   };
 
   const handleDelete = (id) => {
+    if (!isChefProjet()) {
+      Modal.error({
+        title: 'Accès refusé',
+        content: 'Seul le chef de projet peut supprimer les tâches.',
+      });
+      return;
+    }
+
     Modal.confirm({
       title: 'Confirmer la suppression',
       content: 'Êtes-vous sûr de vouloir supprimer cette tâche ?',
@@ -267,8 +336,12 @@ const GestionTachesProjets = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button type="primary" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-          <Button danger size="small" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+          {isChefProjet() && (
+            <>
+              <Button type="primary" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+              <Button danger size="small" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+            </>
+          )}
         </Space>
       )
     }
@@ -278,10 +351,12 @@ const GestionTachesProjets = () => {
     <div style={{ padding: '20px' }}>
       <Row gutter={16} style={{ marginBottom: '24px' }}>
         <Col span={24}>
-          <Card title="Gestion des Tâches du Projet" extra={
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
-              Nouvelle Tâche
-            </Button>
+          <Card title={`Gestion des Tâches du Projet du ${projet?.nom}`} extra={
+            isChefProjet() && (
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+                Nouvelle Tâche
+              </Button>
+            )
           }>
             <Table
               columns={columns}

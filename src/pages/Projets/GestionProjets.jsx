@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import useAuthStore from "../../store/useAuthStore";
  import DataTable from "../../components/table/dataTable";
  import Input from "../../components/form/Input";
  import { NavLink, useNavigate } from "react-router-dom";
@@ -11,11 +12,14 @@ function GestionProjets() {
   const [projets, setProjets] = useState([]);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [users, setUsers] = useState([]);
 
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
 
   const navigate = useNavigate();
+  
+  const user = useAuthStore((state) => state.user);
 
   const [formData, setFormData] = useState({
     nom: "",
@@ -42,7 +46,18 @@ function GestionProjets() {
 
   useEffect(() => {
     fetchProjets();
+    fetchUsers();
   }, []);
+
+  // 🔄 FETCH USERS
+  const fetchUsers = () => {
+    api.get("/users")
+      .then(res => {
+        const usersData = res.data.users || [];
+        setUsers(Array.isArray(usersData) ? usersData : []);
+      })
+      .catch(console.log);
+  };
 
   // ✏️ CHANGE
   const handleChange = (e) => {
@@ -81,13 +96,22 @@ function GestionProjets() {
     { key: "chef_projet", label: "Chef du projet", selector: row => row.chef_projet ? row.chef_projet.name : "Non assigné" },
   ];
 
-  const actions = [
-    { label: "Voir", callback: (p) => navigate(`/taches/${p.id}`) },
-    { label: "Modifier", callback: editProjet },
-    { label: "Supprimer", callback: (p) => deleteProjet(p.id) },
-    // { label: "Taches", callback: (p) => alert(`Taches du projet: ${p.id}`)   },
-    // { label: "Conttributeur", callback: (p) => alert(`Conttributeurs du projet: ${p.id}`)   },
-  ];
+  const getActions = (projet) => {
+    const isChefProjet = user && projet.chef_projet_id === user.id;
+    
+    const baseActions = [
+      { label: "Voir", callback: (p) => navigate(`/taches/${p.id}`) },
+    ];
+
+    if (isChefProjet) {
+      baseActions.push(
+        { label: "Modifier", callback: editProjet },
+        { label: "Supprimer", callback: (p) => deleteProjet(p.id) }
+      );
+    }
+
+    return baseActions;
+  };
 
 
   // 🔄 UPDATE
@@ -150,7 +174,7 @@ function GestionProjets() {
           <DataTable
           columns={columns}
           data={projets}
-          actions={actions}
+          getActions={getActions}
         />
 
       </div>
@@ -215,14 +239,19 @@ function GestionProjets() {
               <option value="Terminé">Terminé</option>
             </select>
 
-            <Input 
+            <select 
               name="chef_projet_id" 
-              type="number"
-              placeholder="ID Chef projet" 
               value={formData.chef_projet_id}
               onChange={handleChange} 
-              className="border p-2 w-full mb-4" 
-            />
+              className="border p-2 w-full mb-4"
+            >
+              <option value="">Sélectionner un chef de projet</option>
+              {users.map(user => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
 
             <div className="flex justify-end gap-2">
               <button 
@@ -245,7 +274,7 @@ function GestionProjets() {
                 Annuler
               </button>
 
-              <button className="bg-green-600 text-white px-4 py-2 rounded">
+              <button className="bg-green-600 text-white px-4 py-2 rounded" type="submit">
                 Enregistrer
               </button>
             </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Form, Select, Modal, Spin, Alert, Tag, Row, Col, Space, Typography, Table } from 'antd';
-import { EditOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button, Form, Select, Modal, Spin, Alert, Tag, Row, Col, Space, Typography, Table, Descriptions } from 'antd';
+import { EditOutlined, CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
 
@@ -13,6 +13,8 @@ const ListeTachesandSoustaches = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form] = Form.useForm();
+  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
   
 
    // Assurez-vous que l'ID utilisateur est stocké dans le localStorage   
@@ -26,6 +28,7 @@ const ListeTachesandSoustaches = () => {
         }
       const response = await api.get(`/users/mytachesandsofsstaches/${userId}`);
       setTaches(response.data || []);
+      console.log('Tâches récupérées:', response.data);
       setError(null);
     } catch (err) {
       console.error(err);
@@ -49,6 +52,16 @@ const ListeTachesandSoustaches = () => {
       statut: item.tache.statut || 'prevu',
     });
     setIsModalVisible(true);
+  };
+
+  const openDetailsModal = (record) => {
+    setSelectedTask(record);
+    setIsDetailsModalVisible(true);
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalVisible(false);
+    setSelectedTask(null);
   };
 
   const handleCancel = () => {
@@ -84,7 +97,15 @@ const ListeTachesandSoustaches = () => {
       key: 'nom',
       render: (_, record) => record.tache?.nom || 'Tâche inconnue',
       ellipsis: true,
-      width: 220,
+      width: 150,
+    },
+    {
+      title: 'Projet',
+      dataIndex: ['tache', 'projet', 'nom'],
+      key: 'projet',
+      render: (_, record) => record.tache?.projet?.nom || 'Projet inconnu',
+      ellipsis: true,
+      width: 120,
     },
     {
       title: 'Description',
@@ -92,14 +113,14 @@ const ListeTachesandSoustaches = () => {
       key: 'description',
       render: (text) => text || 'Pas de description',
       ellipsis: true,
-      width: 260,
+      width: 180,
     },
     {
       title: 'Rôle',
       dataIndex: 'role_dans_tache',
       key: 'role',
       render: (value) => value || 'N/A',
-      width: 140,
+      width: 100,
     },
     {
       title: 'Statut',
@@ -110,7 +131,7 @@ const ListeTachesandSoustaches = () => {
           {statut || 'N/A'}
         </Tag>
       ),
-      width: 130,
+      width: 100,
     },
     {
       title: 'Priorité',
@@ -121,7 +142,7 @@ const ListeTachesandSoustaches = () => {
           {priorite || 'N/A'}
         </Tag>
       ),
-      width: 130,
+      width: 100,
     },
     {
       title: 'Période',
@@ -133,17 +154,22 @@ const ListeTachesandSoustaches = () => {
           ? `${new Date(debut).toLocaleDateString()} – ${new Date(fin).toLocaleDateString()}`
           : 'N/A';
       },
-      width: 180,
+      width: 140,
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <Button type="link" icon={<EditOutlined />} onClick={() => openModal(record)}>
-          Modifier
-        </Button>
+        <Space>
+          <Button type="link" icon={<EyeOutlined />} onClick={() => openDetailsModal(record)}>
+            Voir plus
+          </Button>
+          <Button type="link" icon={<EditOutlined />} onClick={() => openModal(record)}>
+            Modifier
+          </Button>
+        </Space>
       ),
-      width: 110,
+      width: 150,
     }
   ];
 
@@ -252,6 +278,75 @@ const ListeTachesandSoustaches = () => {
           style={{ background: '#fff' }}
         />
       )}
+
+      <Modal
+        title={
+          <Space>
+            <EyeOutlined />
+            Détails de la tâche
+          </Space>
+        }
+        open={isDetailsModalVisible}
+        onCancel={closeDetailsModal}
+        footer={[
+          <Button key="close" onClick={closeDetailsModal}>
+            Fermer
+          </Button>
+        ]}
+        width={800}
+      >
+        {selectedTask && (
+          <Descriptions bordered column={2}>
+            <Descriptions.Item label="Tâche" span={2}>
+              {selectedTask.tache?.nom || 'Tâche inconnue'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Projet">
+              {selectedTask.tache?.projet?.nom || 'Projet inconnu'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Rôle">
+              {selectedTask.role_dans_tache || 'N/A'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Description" span={2}>
+              {selectedTask.tache?.description || 'Pas de description'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Statut">
+              <Tag color={getStatusColor(selectedTask.tache?.statut)} icon={getStatusIcon(selectedTask.tache?.statut)}>
+                {selectedTask.tache?.statut || 'N/A'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Priorité">
+              <Tag color={getPriorityColor(selectedTask.tache?.priorite)}>
+                {selectedTask.tache?.priorite || 'N/A'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Date de début">
+              {selectedTask.tache?.date_debut ? new Date(selectedTask.tache.date_debut).toLocaleDateString() : 'N/A'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Date de fin">
+              {selectedTask.tache?.date_fin ? new Date(selectedTask.tache.date_fin).toLocaleDateString() : 'N/A'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Durée">
+              {selectedTask.tache?.duree ? `${selectedTask.tache.duree} jours` : 'N/A'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Sous-tâches" span={2}>
+              {selectedTask.sous_tache && (Array.isArray(selectedTask.sous_tache) ? selectedTask.sous_tache.length : 1) > 0 ? (
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {(Array.isArray(selectedTask.sous_tache) ? selectedTask.sous_tache : [selectedTask.sous_tache]).map((soustache, index) => (
+                    <li key={index}>
+                      <Space>
+                        <input type="checkbox" defaultChecked={soustache.completed} readOnly />
+                        <span>{soustache.titre || soustache.nom}</span>
+                      </Space>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                'Aucune sous-tâche'
+              )}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
 
       <Modal
         title={

@@ -29,7 +29,7 @@ function useAuth() {
         try {
             // Appel API POST via ton service
             const data = await postRequest("login", { email, password });
-            storeLogin(data);
+            storeLogin(data); 
             
             if(data.role && (data.role.includes("Admin") || data.role.includes("SuperAdmin"))  ){
                  navigate("/dashboard");
