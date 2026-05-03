@@ -12,6 +12,9 @@ import GestionProjets from "../pages/Projets/GestionProjets.jsx";
 import ListeTachesandSoustaches from "../pages/myTachesandSoustaches/ListeTachesandSoustaches.jsx";
 import Dashboard from "../pages/Dashboard.jsx";
 import Rapport from "../pages/Rapport.jsx";
+import GestionDocuments from "../pages/Documents/GestionDocuments.jsx";
+import GestionReunions from "../pages/Reunions/GestionReunions.jsx";
+import GestionChatsMessages from "../pages/Chats/GestionChatsMessages.jsx";
 
 
 
@@ -34,7 +37,7 @@ const router = createBrowserRouter([
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><Rapport /></RoleProtectedRoute>
             },
             {
-                path: "taches/:projetId",
+                path: "projets/:projetId",
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Utilisateur']}><GestionTachesProjets /></RoleProtectedRoute>
             },
             {
@@ -44,6 +47,22 @@ const router = createBrowserRouter([
             {
                 path: "listeMyTachesSoustaches",
                 element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Utilisateur']}><ListeTachesandSoustaches /></RoleProtectedRoute>
+            },
+            {
+                path: "Documents",
+                element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><GestionDocuments /></RoleProtectedRoute>
+            },
+            {
+                path: "reunions",
+                element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><GestionReunions /></RoleProtectedRoute>
+            },
+            {
+                path: "reunion",
+                element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin']}><GestionReunions /></RoleProtectedRoute>
+            },
+            {
+                path: "chats",
+                element: <RoleProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Utilisateur']}><GestionChatsMessages /></RoleProtectedRoute>
             }
           
 

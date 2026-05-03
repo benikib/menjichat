@@ -100,7 +100,7 @@ function GestionProjets() {
     const isChefProjet = user && projet.chef_projet_id === user.id;
     
     const baseActions = [
-      { label: "Voir", callback: (p) => navigate(`/taches/${p.id}`) },
+      { label: "Voir", callback: (p) => navigate(`/projets/${p.id}`) },
     ];
 
     if (isChefProjet) {

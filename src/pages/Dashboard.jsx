@@ -55,7 +55,7 @@ function Dashboard() {
       label: 'Nouvelle réunion', 
       icon: CalendarIcon, 
       color: 'bg-green-600 hover:bg-green-700',
-      onClick: () => navigate('/reunions/creer')
+      onClick: () => navigate('/reunions')
     },
     { 
       label: 'Envoyer message', 
