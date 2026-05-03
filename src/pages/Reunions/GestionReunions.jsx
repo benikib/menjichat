@@ -93,13 +93,29 @@ function GestionReunions() {
     setShowEditModal(false);
   };
 
+  const extractTimeValue = (value) => {
+    if (!value) return "";
+    if (value.includes("T")) {
+      return value.split("T")[1].slice(0, 5);
+    }
+    if (value.includes(" ")) {
+      return value.split(" ")[1].slice(0, 5);
+    }
+    return value.slice(0, 5);
+  };
+
+  const buildDateTime = (dateValue, timeValue) => {
+    if (!dateValue || !timeValue) return "";
+    return `${dateValue} ${timeValue}:00`;
+  };
+
   const openEditModal = (reunion) => {
     setSelectedReunion(reunion);
     setEditForm({
       objetif: reunion.objetif || "",
       date: reunion.date ? reunion.date.slice(0, 10) : "",
-      heure_debut: reunion.heure_debut || "",
-      heure_fin: reunion.heure_fin || "",
+      heure_debut: extractTimeValue(reunion.heure_debut),
+      heure_fin: extractTimeValue(reunion.heure_fin),
       lieu_ou_lien: reunion.lieu_ou_lien || "",
       description: reunion.description || "",
       projet_id: reunion.projet_id ? String(reunion.projet_id) : "",
@@ -111,8 +127,14 @@ function GestionReunions() {
     event.preventDefault();
     setError("");
 
+    const payload = {
+      ...createForm,
+      heure_debut: buildDateTime(createForm.date, createForm.heure_debut),
+      heure_fin: buildDateTime(createForm.date, createForm.heure_fin),
+    };
+
     try {
-      await api.post("/reunions", createForm);
+      await api.post("/reunions", payload);
       await fetchReunions();
       closeCreateModal();
     } catch (createError) {
@@ -126,8 +148,14 @@ function GestionReunions() {
 
     if (!selectedReunion?.id) return;
 
+    const payload = {
+      ...editForm,
+      heure_debut: buildDateTime(editForm.date, editForm.heure_debut),
+      heure_fin: buildDateTime(editForm.date, editForm.heure_fin),
+    };
+
     try {
-      await api.put(`/reunions/${selectedReunion.id}`, editForm);
+      await api.put(`/reunions/${selectedReunion.id}`, payload);
       await fetchReunions();
       closeEditModal();
     } catch (updateError) {
