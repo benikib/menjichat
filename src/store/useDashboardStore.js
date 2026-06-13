@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // Configuration axios avec l'URL de base
 const api = axios.create({
-    baseURL: '/api', // Utilise le proxy Vite en développement pour éviter les erreurs CORS
+    baseURL: 'http://menjichatback.menjidrc.com/', // Utilise le proxy Vite en développement pour éviter les erreurs CORS
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
