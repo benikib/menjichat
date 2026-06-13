@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // Configuration d'axios avec l'URL de base
 const api = axios.create({
-    baseURL: 'http://localhost:8000', // Port de votre serveur Laravel
+    baseURL: '/api', // Utilise le proxy Vite en développement pour éviter les erreurs CORS
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
