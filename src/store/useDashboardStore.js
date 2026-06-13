@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // Configuration axios avec l'URL de base
 const api = axios.create({
-    baseURL: 'http://menjichatback.menjidrc.com/api', // Utilise le proxy Vite en développement pour éviter les erreurs CORS
+    baseURL: 'http://menjichatback.menjidrc.com/api/', // Utilise le proxy Vite en développement pour éviter les erreurs CORS
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -38,7 +38,7 @@ const useDashboardStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             console.log('Fetching dashboard...');
-            const response = await api.get('/dashboard');
+                    const response = await api.get('/dashboard');
             
             console.log('Dashboard response:', response.data);
             
