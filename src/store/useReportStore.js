@@ -41,35 +41,35 @@ const useReportStore = create((set, get) => ({
             // Construire l'URL et les paramètres selon la période
             switch(period) {
                 case 'daily':
-                    url = '/api/reports/daily';
+                    url = '/reports/daily';
                     if (params.date) config.params.date = params.date;
                     break;
                 case 'weekly':
-                    url = '/api/reports/weekly';
+                    url = '/reports/weekly';
                     if (params.week) config.params.week = params.week;
                     if (params.year) config.params.year = params.year;
                     break;
                 case 'monthly':
-                    url = '/api/reports/monthly';
+                    url = '/reports/monthly';
                     if (params.month) config.params.month = params.month;
                     if (params.year) config.params.year = params.year;
                     break;
                 case 'quarterly':
-                    url = '/api/reports/quarterly';
+                    url = '/reports/quarterly';
                     if (params.quarter) config.params.quarter = params.quarter;
                     if (params.year) config.params.year = params.year;
                     break;
                 case 'semester':
-                    url = '/api/reports/semester';
+                    url = '/reports/semester';
                     if (params.semester) config.params.semester = params.semester;
                     if (params.year) config.params.year = params.year;
                     break;
                 case 'annual':
-                    url = '/api/reports/annual';
+                    url = '/reports/annual';
                     if (params.year) config.params.year = params.year;
                     break;
                 default:
-                    url = '/api/reports/monthly';
+                    url = '/reports/monthly';
             }
             
             console.log('Appel API:', url, config.params);
@@ -107,7 +107,7 @@ const useReportStore = create((set, get) => ({
         set({ loading: true, error: null });
         
         try {
-            const response = await api.post('/api/reports/custom', {
+            const response = await api.post('/reports/custom', {
                 start_date: startDate,
                 end_date: endDate
             });
@@ -137,7 +137,7 @@ const useReportStore = create((set, get) => ({
 
     exportReport: async (period, params = {}) => {
         try {
-            let url = `/api/reports/export/${period}`;
+            let url = `/reports/export/${period}`;
             const queryParams = new URLSearchParams();
             
             if (params.year) queryParams.append('year', params.year);

@@ -38,7 +38,7 @@ const useDashboardStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             console.log('Fetching dashboard...');
-            const response = await api.get('/api/dashboard');
+            const response = await api.get('/dashboard');
             
             console.log('Dashboard response:', response.data);
             
