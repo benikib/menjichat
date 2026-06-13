@@ -13,16 +13,12 @@ function Login() {
     
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const { login, loading, account, error } = useAuth();
-
-
+    const { login, loading, error } = useAuth();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        login(email, password)
-        console.log(account);
-
-    }
+        login(email, password);
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -33,16 +29,20 @@ function Login() {
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     <Input
+                        name="email"
                         label="Adresse email"
                         type="email"
-                        onChange={setEmail}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Entrer votre adresse mail"
                     />
 
                     <Input
+                        name="password"
                         label="Mot de passe"
                         type="password"
-                        onChange={setPassword}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Entrer votre mot de passe"
                     />
 
