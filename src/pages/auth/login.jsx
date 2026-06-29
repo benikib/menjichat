@@ -2,7 +2,7 @@
 import { useState ,useEffect} from "react";
 import { Input } from "../../components/form/Input"
 import useAuth from "../../hooks/useAuth"
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/useAuthStore";
 
 
@@ -54,6 +54,12 @@ function Login() {
                     >
                         {loading ? "Connexion..." : "Se connecter"}
                     </button>
+
+                    <div className="text-right">
+                        <Link className="text-sm text-blue-600 hover:text-blue-800" to="/forgot-password">
+                            Mot de passe oublié ?
+                        </Link>
+                    </div>
 
                     {loading && (
                         <p className="text-center text-blue-500">Chargement...</p>

@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import Login from "../pages/auth/login.jsx";
+import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
 import ProtectedRoute from "../components/ProtectedRoute.jsx";
 import MainLayout from "../components/MainLayout.jsx";
 import RoleProtectedRoute from "../components/RoleProtectedRoute.jsx";
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
     {
         path: "/login",
         element: <Login></Login>
+    },
+    {
+        path: "/forgot-password",
+        element: <ForgotPassword />
     },
     {
         path: "/unauthorized",
