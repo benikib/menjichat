@@ -1,8 +1,10 @@
 import axios from 'axios';
 import useAuthStore from '../store/useAuthStore';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://menjichatback.menjidrc.com/api';
+
 const api = axios.create({
-  baseURL: 'https://menjichatback.menjidrc.com/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

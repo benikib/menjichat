@@ -3,9 +3,11 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://menjichatback.menjidrc.com/api';
+
 // Configuration d'axios avec l'URL de base
 const api = axios.create({
-    baseURL: 'http://menjichatback.menjidrc.com/api/', // Utilise le proxy Vite en développement pour éviter les erreurs CORS
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
