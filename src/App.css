@@ -10,6 +10,28 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: #F8FAFC;
   color: #1E293B;
+  min-height: 100vh;
+}
+
+html {
+  min-height: 100%;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+img,
+video,
+iframe,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .App {

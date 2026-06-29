@@ -1,17 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
 import useAuth from "../../hooks/useAuth";
 import useAuthStore from "../../store/useAuthStore";
 
-function Aside() {
-  const { role, loadUserFromStorage} = useAuthStore();
+function Aside({ isOpen = false, onClose }) {
+  const { role, loadUserFromStorage } = useAuthStore();
   const { logout, error } = useAuth();
 
-  const [sidebarToggle, setSidebarToggle] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
-
-  const asideRef = useRef(null);
 
   useEffect(() => {
     loadUserFromStorage();
@@ -27,18 +24,24 @@ function Aside() {
   }, [selected]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (asideRef.current && !asideRef.current.contains(event.target)) {
-        setSidebarToggle(false);
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        onClose?.();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [onClose]);
 
   const handleSelect = (item) => {
     setSelected(item);
+  };
+
+  const handleNavClick = () => {
+    if (window.innerWidth < 1024) {
+      onClose?.();
+    }
   };
 
   const linkClass = (item) =>
@@ -50,28 +53,24 @@ function Aside() {
 
   return (
     <aside
-      ref={asideRef}
-      className={`absolute left-0 top-0 z-50 flex min-h-screen w-64 flex-col bg-black duration-300 lg:static lg:translate-x-0 ${
-        sidebarToggle ? "translate-x-0" : "-translate-x-full"
+      className={`fixed left-0 top-0 z-40 flex min-h-screen w-64 flex-col bg-black text-white transition-transform duration-300 lg:static lg:w-64 lg:translate-x-0 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
       {error}
 
       {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
-        <span className="text-white font-bold text-lg">LOGO</span>
-        <button 
-          onClick={() => setSidebarToggle(!sidebarToggle)}
-          className="lg:hidden text-white"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+      <div className="flex items-center justify-between border-b border-gray-700 px-6 py-5">
+        <span className="text-lg font-bold text-white">LOGO</span>
+        <button type="button" onClick={onClose} className="text-white lg:hidden" aria-label="Fermer le menu">
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
       {/* MENU */}
-      <nav className="mt-5 px-4 flex flex-col flex-1">
+      <nav className="mt-5 flex flex-1 flex-col overflow-y-auto px-4 pb-6" onClick={handleNavClick}>
         <ul className="flex flex-col gap-2">
 
           {/* Dashboard */}
